@@ -41,6 +41,9 @@ The web interface contains a dashboard with items that need attention, and
 various pages to manipulate hosts, repositories, packages, operating systems and
 reports.
 
+The reports list view supports filtering by fully qualified host name via the
+`host_id` query parameter (for example, `/reports/?host_id=host.example.org`).
+
 To populate the database, simply run the client on some hosts:
 
 ```shell
