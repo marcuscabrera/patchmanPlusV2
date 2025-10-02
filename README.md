@@ -35,6 +35,78 @@ See [the installation guide](https://github.com/furlongm/patchman/blob/master/IN
 for installation options.
 
 
+## Quickstart for local development
+
+The repository ships with sample configuration under `etc/patchman`. The
+following steps spin up a local environment that stores its data inside the
+project directory and serves the Django admin at `http://127.0.0.1:8000/`.
+
+1. Create and activate a virtual environment:
+
+   ```shell
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+
+2. Install the Python dependencies required by the server and the client:
+
+   ```shell
+   pip install -r requirements.txt
+   ```
+
+3. Adjust `etc/patchman/local_settings.py` for development. At a minimum set a
+   non-empty `SECRET_KEY` and point the SQLite database to a writable location
+   inside the repository, for example:
+
+   ```python
+   from pathlib import Path
+
+   PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+   SECRET_KEY = "generate-a-unique-value-here"
+
+   DATABASES = {
+       "default": {
+           "ENGINE": "patchman.sqlite3",
+           "NAME": PROJECT_ROOT / "run" / "patchman.db",
+           "OPTIONS": {"timeout": 30},
+       }
+   }
+   ```
+
+   Then create the database directory and any other runtime folders:
+
+   ```shell
+   mkdir -p run
+   ```
+
+4. Apply the database migrations and create a superuser to access the web UI:
+
+   ```shell
+   python manage.py migrate
+   python manage.py createsuperuser
+   ```
+
+5. Start the development server:
+
+   ```shell
+   python manage.py runserver
+   ```
+
+With the server running you can log in at `/patchman/` using the superuser
+credentials created above.
+
+### Optional background workers
+
+Patchman makes use of Celery for asynchronous tasks such as processing
+incoming reports or refreshing repositories. To exercise these features during
+development run the worker and beat scheduler in separate terminals:
+
+```shell
+celery -A patchman worker -l info
+celery -A patchman beat -l info
+```
+
 ## Usage
 
 The web interface contains a dashboard with items that need attention, and
