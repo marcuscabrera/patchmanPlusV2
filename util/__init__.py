@@ -268,19 +268,25 @@ def is_epoch_time(timestamp):
 
 
 def tz_aware_datetime(date):
-    """ Ensure a datetime is timezone-aware
-        Returns the tz-aware datetime object
+    """Ensure a datetime is timezone-aware.
+
+    Returns the datetime converted to UTC.
     """
+
     if isinstance(date, int) or is_epoch_time(date):
-        parsed_date = datetime.fromtimestamp(int(date))
+        parsed_date = datetime.fromtimestamp(int(date), tz=timezone.utc)
     elif isinstance(date, str):
         parsed_date = parse_datetime(date)
     else:
         parsed_date = date
-    parsed_date = parsed_date.replace(tzinfo=timezone.utc)
-    if not parsed_date.tzinfo:
-        parsed_date = make_aware(parsed_date)
-    return parsed_date
+
+    if parsed_date is None:
+        return None
+
+    if parsed_date.tzinfo:
+        return parsed_date.astimezone(timezone.utc)
+
+    return make_aware(parsed_date, timezone=timezone.utc)
 
 
 def get_datetime_now():
