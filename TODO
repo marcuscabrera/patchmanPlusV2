@@ -1,0 +1,21 @@
+* add checkrestart-style options to see which services need restarting
+* OVAL/OSCAP apps
+* CA support (tinyca?)
+* native python/go client, using apt/yum/debian libraries
+* record the history of installed packages on a host
+* also store package descriptions/tags/urls
+* check for unused repos
+* suggest names for repos with the same checksum
+* helper script to change paths (e.g. /usr/lib/python3/dist-packages/patchman)
+* Dockerfile/Dockerimage
+* compressed reports
+* add cronjobs to build packages
+* dnf5 support
+* proxy support
+* GLSA support
+* only use date for errata issue date?
+* parallelize package extraction
+* use django-tables2
+* autonaming for deb repos
+* associate repos with gentoo hosts
+* populate authenticated repos with package lists from hosts?
