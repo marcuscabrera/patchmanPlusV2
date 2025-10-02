@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
-from django.db.models import F
+from django.db.models import F, Count, Q
 
 from hosts.models import Host
 from operatingsystems.models import OSVariant, OSRelease
@@ -68,12 +68,17 @@ def dashboard(request):
         norepo_osreleases = osreleases.filter(repos__isnull=True)
 
     # mirror issues
-    failed_mirrors = repos.filter(auth_required=False).filter(mirror__last_access_ok=False).filter(mirror__last_access_ok=True).distinct()  # noqa
+    mirror_status = repos.filter(auth_required=False).annotate(
+        fail_count=Count('mirror', filter=Q(mirror__last_access_ok=False)),
+        success_count=Count('mirror', filter=Q(mirror__last_access_ok=True)),
+    )
+
+    failed_mirrors = mirror_status.filter(fail_count__gt=0, success_count__gt=0)
     disabled_mirrors = repos.filter(auth_required=False).filter(mirror__enabled=False).filter(mirror__mirrorlist=False).distinct()  # noqa
     norefresh_mirrors = repos.filter(auth_required=False).filter(mirror__refresh=False).distinct()  # noqa
 
     # repo issues
-    failed_repos = repos.filter(auth_required=False).filter(mirror__last_access_ok=False).exclude(id__in=[x.id for x in failed_mirrors]).distinct()  # noqa
+    failed_repos = mirror_status.filter(fail_count__gt=0, success_count=0)
     unused_repos = repos.filter(host__isnull=True, osrelease__isnull=True)
     nomirror_repos = repos.filter(mirror__isnull=True)
     nohost_repos = repos.filter(host__isnull=True)
