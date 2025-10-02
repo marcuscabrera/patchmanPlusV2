@@ -108,7 +108,7 @@ REST_FRAMEWORK = {
 
 TAGGIT_CASE_INSENSITIVE = True
 
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://127.0.0.1:6379/0')
 
 LOGIN_REDIRECT_URL = '/patchman/'
 LOGOUT_REDIRECT_URL = '/patchman/login/'

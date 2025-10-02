@@ -1,0 +1,31 @@
+# Ignore git metadata and local configuration
+.git
+.gitignore
+
+# Python caches
+__pycache__
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv
+venv
+ENV
+env
+
+# Django runtime artefacts
+run/static
+run/media
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artefacts
+*.egg-info
+build
+dist
+
+# Docker related volumes
+var
+
