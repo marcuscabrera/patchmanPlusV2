@@ -1,0 +1,80 @@
+version: "3.9"
+
+services:
+  web:
+    # Django application container serving HTTP traffic on port 8000.
+    build:
+      context: .
+    image: patchmanplusv2-web
+    env_file: .env
+    environment:
+      # Point Celery/Django to the Redis instance defined below.
+      CELERY_BROKER_URL: redis://redis:6379/0
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,web"
+    command: ["web"]
+    ports:
+      - "8000:8000"
+    volumes:
+      - patchman-db:/var/lib/patchman/db
+      - patchman-run:/var/lib/patchman/run
+      - patchman-static:/app/run/static
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      # Use Django's built-in system check framework as a lightweight health probe.
+      test: ["CMD-SHELL", "python manage.py check --deploy --database default || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  worker:
+    # Celery worker processing asynchronous jobs triggered by Patchman.
+    build:
+      context: .
+    image: patchmanplusv2-worker
+    env_file: .env
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+    command: ["worker"]
+    volumes:
+      - patchman-db:/var/lib/patchman/db
+      - patchman-run:/var/lib/patchman/run
+      - patchman-static:/app/run/static
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      # Ping the worker using Celery's control API to confirm it is responsive.
+      test: ["CMD-SHELL", "celery -A patchman.celery inspect ping -d celery@$$HOSTNAME || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  redis:
+    # In-memory data store used as the message broker for Celery.
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    volumes:
+      - patchman-redis:/data
+    healthcheck:
+      # Simple ping to verify Redis is available.
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  patchman-db:
+    # Persist the SQLite database between container restarts.
+  patchman-run:
+    # Preserve auxiliary runtime artefacts produced by Patchman.
+  patchman-static:
+    # Serve previously collected static files without rebuilding them.
+  patchman-redis:
+    # Retain Redis data if persistence is toggled on in the future.

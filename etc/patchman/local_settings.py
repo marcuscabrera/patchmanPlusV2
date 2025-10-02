@@ -1,5 +1,7 @@
 # Django settings for patchman project.
 
+import os
+
 DEBUG = False
 
 ADMINS = (
@@ -88,3 +90,30 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': timedelta(hours=24),
     },
 }
+
+
+def _strtobool(value: str, default: bool) -> bool:
+    """Convert truthy string values to boolean."""
+
+    if value is None:
+        return default
+    return value.strip().lower() in {'1', 'true', 'yes', 'on'}
+
+
+# Environment driven overrides for containerised deployments.
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', SECRET_KEY or os.environ.get('SECRET_KEY', 'changeme'))
+DEBUG = _strtobool(os.environ.get('DJANGO_DEBUG'), DEBUG)
+
+_allowed_hosts = os.environ.get('DJANGO_ALLOWED_HOSTS')
+if _allowed_hosts:
+    ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts.split(',') if host.strip()]
+
+RUN_GUNICORN = _strtobool(os.environ.get('PATCHMAN_RUN_GUNICORN'), RUN_GUNICORN)
+
+db_name = os.environ.get('DJANGO_DB_NAME')
+if db_name:
+    DATABASES['default']['NAME'] = db_name
+
+celery_broker = os.environ.get('CELERY_BROKER_URL')
+if celery_broker:
+    CELERY_BROKER_URL = celery_broker
