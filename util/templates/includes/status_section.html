@@ -1,0 +1,51 @@
+{% comment %}
+  Renders an accordion section summarising dashboard alerts.
+  Expected context:
+    accordion_id: string identifier of the accordion container
+    section_id: unique id for the collapsible element
+    count: integer value used in the badge
+    title: heading text
+    variant: bootstrap contextual suffix (primary, danger, etc.)
+    icon: emoji or icon string to display before the title
+    table_data (optional): queryset compatible with gen_table
+    mirror_checksums (optional): iterable of checksum strings
+    packages (optional): iterable of package objects with get_absolute_url
+{% endcomment %}
+{% if count %}
+<div class="accordion-item border-0 shadow-sm mb-3">
+  <h2 class="accordion-header" id="{{ section_id }}-heading">
+    <button class="accordion-button collapsed gap-3" type="button" data-bs-toggle="collapse" data-bs-target="#{{ section_id }}" aria-expanded="false" aria-controls="{{ section_id }}">
+      <span class="badge bg-{{ variant }} rounded-pill align-self-start">{{ count }}</span>
+      <span class="fs-5 d-flex align-items-center text-{{ variant }}">
+        <span class="me-2" aria-hidden="true">{{ icon }}</span>
+        <span class="fw-semibold">{{ title }}</span>
+      </span>
+    </button>
+  </h2>
+  <div id="{{ section_id }}" class="accordion-collapse collapse" aria-labelledby="{{ section_id }}-heading" data-bs-parent="#{{ accordion_id }}">
+    <div class="accordion-body">
+      {% if table_data %}
+        {% gen_table table_data %}
+      {% elif mirror_checksums %}
+        <div class="d-flex flex-wrap gap-2">
+          {% for checksum in mirror_checksums %}
+            <span class="badge bg-info text-dark">
+              <a class="text-reset text-decoration-none" href="{% url 'repos:mirror_list' %}?checksum={{ checksum }}">{{ checksum }}</a>
+            </span>
+          {% endfor %}
+        </div>
+      {% elif packages %}
+        <div class="d-flex flex-wrap gap-2">
+          {% for package in packages %}
+            <span class="badge bg-success">
+              <a class="text-reset text-decoration-none" href="{{ package.get_absolute_url }}">{{ package }}</a>
+            </span>
+          {% endfor %}
+        </div>
+      {% else %}
+        {{ content|default_if_none:"" }}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endif %}
