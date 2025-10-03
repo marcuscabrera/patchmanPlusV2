@@ -1,34 +1,93 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container">
-    <a class="navbar-brand" href="https://github.com/furlongm/patchman">Patchman</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#primaryNav" aria-controls="primaryNav" aria-expanded="false" aria-label="Toggle navigation">
+<nav class="navbar navbar-expand-lg navbar-dark navbar-gradient shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'util:dashboard' %}">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="fw-semibold">{{ site.name|default:"Patchman" }}</span>
+    </a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#primaryNav"
+      aria-controls="primaryNav"
+      aria-expanded="false"
+      aria-label="Alternar navegação"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="primaryNav">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link {% if '/dashboard' in request.path %}active{% endif %}" href="{% url 'util:dashboard' %}">Dashboard</a>
+          <a
+            class="nav-link {% if '/dashboard' in request.path %}active{% endif %}"
+            href="{% url 'util:dashboard' %}"
+            {% if '/dashboard' in request.path %}aria-current="page"{% endif %}
+          >
+            Dashboard
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {% if '/hosts' in request.path %}active{% endif %}" href="{% url 'hosts:host_list' %}">Hosts</a>
+          <a
+            class="nav-link {% if '/hosts' in request.path %}active{% endif %}"
+            href="{% url 'hosts:host_list' %}"
+            {% if '/hosts' in request.path %}aria-current="page"{% endif %}
+          >
+            Hosts
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {% if '/repos' in request.path %}active{% endif %}" href="{% url 'repos:repo_list' %}">Repositories</a>
+          <a
+            class="nav-link {% if '/repos' in request.path %}active{% endif %}"
+            href="{% url 'repos:repo_list' %}"
+            {% if '/repos' in request.path %}aria-current="page"{% endif %}
+          >
+            Repositórios
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {% if '/packages' in request.path %}active{% endif %}" href="{% url 'packages:package_name_list' %}">Packages</a>
+          <a
+            class="nav-link {% if '/packages' in request.path %}active{% endif %}"
+            href="{% url 'packages:package_name_list' %}"
+            {% if '/packages' in request.path %}aria-current="page"{% endif %}
+          >
+            Pacotes
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {% if '/errata' in request.path %}active{% endif %}" href="{% url 'errata:erratum_list' %}">Errata</a>
+          <a
+            class="nav-link {% if '/errata' in request.path %}active{% endif %}"
+            href="{% url 'errata:erratum_list' %}"
+            {% if '/errata' in request.path %}aria-current="page"{% endif %}
+          >
+            Errata
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {% if '/cves' in request.path %}active{% endif %}" href="{% url 'security:cve_list' %}">CVEs</a>
+          <a
+            class="nav-link {% if '/cves' in request.path %}active{% endif %}"
+            href="{% url 'security:cve_list' %}"
+            {% if '/cves' in request.path %}aria-current="page"{% endif %}
+          >
+            CVEs
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {% if '/os' in request.path %}active{% endif %}" href="{% url 'operatingsystems:osrelease_list' %}">Operating Systems</a>
+          <a
+            class="nav-link {% if '/os' in request.path %}active{% endif %}"
+            href="{% url 'operatingsystems:osrelease_list' %}"
+            {% if '/os' in request.path %}aria-current="page"{% endif %}
+          >
+            Sistemas Operacionais
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {% if '/reports' in request.path %}active{% endif %}" href="{% url 'reports:report_list' %}">Reports</a>
+          <a
+            class="nav-link {% if '/reports' in request.path %}active{% endif %}"
+            href="{% url 'reports:report_list' %}"
+            {% if '/reports' in request.path %}aria-current="page"{% endif %}
+          >
+            Relatórios
+          </a>
         </li>
         {% if user.is_superuser %}
           <li class="nav-item">
@@ -36,18 +95,49 @@
           </li>
         {% endif %}
       </ul>
-      <div class="navbar-text text-light">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
         {% if user.is_authenticated %}
-          {% if user.first_name %}
-            Welcome, {{ user.first_name }}
-          {% else %}
-            Welcome, {{ user }}
-          {% endif %}
-          / <a class="link-light" href="{% url 'logout' %}">Log out</a>
+          <li class="nav-item dropdown">
+            {% with user.first_name|default:user.username as display_name %}
+              {% with display_name|slice:':1' as initial %}
+                <a
+                  class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                  href="#"
+                  id="userMenu"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <span class="navbar-avatar">{{ initial|upper }}</span>
+                  <span class="d-none d-lg-inline fw-semibold">{{ display_name }}</span>
+                </a>
+              {% endwith %}
+            {% endwith %}
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="userMenu">
+              <li class="dropdown-header">
+                Conectado como <strong>{{ user.get_username }}</strong>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'password_change' %}">
+                  <span class="dropdown-icon" aria-hidden="true">👤</span>
+                  Perfil
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                  <span class="dropdown-icon" aria-hidden="true">🚪</span>
+                  Sair
+                </a>
+              </li>
+            </ul>
+          </li>
         {% else %}
-          Welcome, Guest / <a class="link-light" href="{% url 'login' %}">Log In</a>
+          <li class="nav-item">
+            <a class="btn btn-sm btn-outline-light px-3 ms-lg-3" href="{% url 'login' %}">Entrar</a>
+          </li>
         {% endif %}
-      </div>
+      </ul>
     </div>
   </div>
 </nav>
