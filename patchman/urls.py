@@ -28,6 +28,7 @@ from domains import views as domain_views
 from errata import views as errata_views
 from hosts import views as host_views
 from operatingsystems import views as os_views
+from ipam import views as ipam_views
 from packages import views as package_views
 from repos import views as repo_views
 from security import views as security_views
@@ -49,6 +50,7 @@ router.register(r'erratum', errata_views.ErratumViewSet)
 router.register(r'repo', repo_views.RepositoryViewSet)
 router.register(r'mirror', repo_views.MirrorViewSet)
 router.register(r'mirror-package', repo_views.MirrorPackageViewSet)
+router.register(r'ip-address', ipam_views.IPAddressViewSet)
 
 admin.autodiscover()
 
@@ -66,6 +68,7 @@ urlpatterns = [
     path('repos/', include('repos.urls', namespace='repos')),
     path('security/', include('security.urls', namespace='security')),
     path('os/', include('operatingsystems.urls', namespace='operatingsystems')),  # noqa
+    path('ipam/', include('ipam.urls', namespace='ipam')),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load bootstrap3 %}
+
+{% block page_title %}Endereços IP{% endblock %}
+{% block content_title %} Endereços IP {% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li class="active"><a href="{% url 'ipam:ipaddress-list' %}">IPAM</a></li>
+{% endblock %}
+
+{% block content %}
+  <div class="text-right" style="margin-bottom: 1em;">
+    <a class="btn btn-primary" href="{% url 'ipam:ipaddress-create' %}">Adicionar endereço IP</a>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Endereço</th>
+          <th>Status</th>
+          <th>Descrição</th>
+          <th>Criado em</th>
+          <th>Atualizado em</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ip in ip_addresses %}
+          <tr>
+            <td>{{ ip.address }}</td>
+            <td>{{ ip.get_status_display }}</td>
+            <td>{{ ip.description|default:"-" }}</td>
+            <td>{{ ip.created_at|date:"SHORT_DATETIME_FORMAT" }}</td>
+            <td>{{ ip.updated_at|date:"SHORT_DATETIME_FORMAT" }}</td>
+            <td class="text-right">
+              <a class="btn btn-xs btn-default" href="{% url 'ipam:ipaddress-update' pk=ip.pk %}">Editar</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6" class="text-center">Nenhum endereço cadastrado.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+    <div class="centered">
+      {% bootstrap_pagination page_obj size='small' %}
+    </div>
+  {% endif %}
+{% endblock %}
