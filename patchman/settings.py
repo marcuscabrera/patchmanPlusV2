@@ -90,6 +90,7 @@ LOCAL_APPS = [
     'domains.apps.DomainsConfig',
     'errata.apps.ErrataConfig',
     'hosts.apps.HostsConfig',
+    'ipam.apps.IpamConfig',
     'modules.apps.ModulesConfig',
     'operatingsystems.apps.OperatingsystemsConfig',
     'packages.apps.PackagesConfig',

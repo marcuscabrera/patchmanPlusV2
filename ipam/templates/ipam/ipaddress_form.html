@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load bootstrap3 %}
+
+{% block page_title %}{% if object %}Editar endereço IP{% else %}Novo endereço IP{% endif %}{% endblock %}
+{% block content_title %}{% if object %} Editar endereço IP {% else %} Novo endereço IP {% endif %}{% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li><a href="{% url 'ipam:ipaddress-list' %}">IPAM</a></li>
+  <li class="active">{% if object %}Editar{% else %}Novo{% endif %}</li>
+{% endblock %}
+
+{% block content %}
+  <form method="post" class="form">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <div class="form-actions">
+      <a class="btn btn-default" href="{% url 'ipam:ipaddress-list' %}">Cancelar</a>
+      <button type="submit" class="btn btn-primary">Salvar</button>
+    </div>
+  </form>
+{% endblock %}
