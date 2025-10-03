@@ -182,6 +182,46 @@ optional arguments:
                         meier.de/
 ```
 
+## Desenvolvimento
+
+O projeto é mantido com o objetivo de permanecer fácil de testar e atualizar. Abaixo estão algumas dicas úteis para quem for contribuir:
+
+### Executando a suíte de testes
+
+O Patchman utiliza `tox` para orquestrar a execução da suíte de testes (baseada em `nosetests`) e das verificações de estilo (`flake8`). Após criar e ativar o ambiente virtual, instale o `tox` e execute os ambientes desejados:
+
+```shell
+pip install tox
+tox -e py312        # Executa os testes automatizados usando Python 3.12
+tox -e py312-flake8 # Executa apenas as verificações de estilo
+tox                 # Executa todos os ambientes configurados
+```
+
+Caso prefira executar rapidamente apenas os testes sem passar pelo `tox`, você pode rodar `nosetests` diretamente a partir da raiz do repositório:
+
+```shell
+nosetests
+```
+
+Alguns testes criam dados temporários em `./run/`. Se você estiver depurando falhas, pode inspecionar essa pasta ou remover os artefatos com segurança entre execuções.
+
+### Atualizando traduções
+
+Caso faça alterações nas mensagens exibidas ao usuário, lembre-se de atualizar os arquivos de tradução usando as ferramentas do Django:
+
+```shell
+django-admin makemessages -a
+django-admin compilemessages
+```
+
+Esses comandos precisam ser executados em um ambiente com as dependências de desenvolvimento instaladas (incluindo `gettext`).
+
+## Recursos adicionais
+
+* [INSTALL.md](INSTALL.md) — instruções detalhadas de instalação.
+* [BUILD.md](BUILD.md) — procedimentos de empacotamento e construção.
+* [TODO](TODO) — lista de melhorias planejadas.
+
 ## Dependências
 
 ### Dependências do lado do servidor
