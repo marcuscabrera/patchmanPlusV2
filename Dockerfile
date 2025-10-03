@@ -38,7 +38,7 @@ RUN python manage.py collectstatic --noinput
 
 # Preserve the built static assets so they can be restored into a mounted volume at runtime.
 RUN mkdir -p /opt/patchman/static-build \
-    && cp -a run/static/. /opt/patchman/static-build/
+    && cp -a /var/lib/patchman/static/. /opt/patchman/static-build/
 
 # Copy and set permissions for the entrypoint helper.
 RUN chmod +x docker/entrypoint.sh
