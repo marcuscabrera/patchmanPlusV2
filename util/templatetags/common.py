@@ -33,6 +33,17 @@ from util import get_setting_of_type
 register = Library()
 
 
+@register.filter
+def bootstrap_alert(tags):
+    mapping = {
+        'error': 'danger',
+    }
+    if not tags:
+        return 'info'
+    normalized = [mapping.get(tag, tag) for tag in str(tags).split()]
+    return ' '.join(normalized)
+
+
 @register.simple_tag
 def active(request, pattern):
     if re.search(fr"^{request.META['SCRIPT_NAME']}/{pattern}", request.path):
@@ -101,6 +112,14 @@ def get_querystring(request):
     if 'page' in get:
         del get['page']
     return urlencode(get)
+
+
+@register.simple_tag
+def page_querystring(request, page_number):
+    params = request.GET.copy()
+    params['page'] = page_number
+    encoded = params.urlencode()
+    return f'?{encoded}'
 
 
 @register.simple_tag

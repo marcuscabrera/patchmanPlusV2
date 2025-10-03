@@ -1,34 +1,47 @@
 {% extends "base.html" %}
 
-{% load common bootstrap3 static %}
+{% load common static %}
 
 {% block content %}
 
-<div class="row">
-  <div class="col-sm-10">
+<div class="row g-4 align-items-start">
+  <div class="col-12 {% if filter_bar %}col-lg-9 col-xl-10{% endif %}">
     {% get_querydict request as querydict %}
     {% searchform terms querydict %}
     {% gen_table page.object_list table_template %}
-    <div class="centered">
+    <div class="centered text-muted small">
       {% object_count page %}
     </div>
-    <div class="centered">
-      {% get_querystring request as querystring %}
-      {% bootstrap_pagination page size='small' extra=querystring %}
-    </div>
-    <div class="centered">
+    {% if page.has_other_pages %}
+      <nav class="mt-3" aria-label="Pagination">
+        <ul class="pagination pagination-sm justify-content-center">
+          <li class="page-item {% if not page.has_previous %}disabled{% endif %}">
+            <a class="page-link" href="{% if page.has_previous %}{% page_querystring request page.previous_page_number %}{% else %}#{% endif %}" {% if not page.has_previous %}tabindex="-1" aria-disabled="true"{% endif %}>Previous</a>
+          </li>
+          {% for number in page.paginator.page_range %}
+            <li class="page-item {% if page.number == number %}active{% endif %}">
+              <a class="page-link" href="{% page_querystring request number %}">{{ number }}</a>
+            </li>
+          {% endfor %}
+          <li class="page-item {% if not page.has_next %}disabled{% endif %}">
+            <a class="page-link" href="{% if page.has_next %}{% page_querystring request page.next_page_number %}{% else %}#{% endif %}" {% if not page.has_next %}tabindex="-1" aria-disabled="true"{% endif %}>Next</a>
+          </li>
+        </ul>
+      </nav>
+    {% endif %}
+    <div class="centered text-muted small">
       Page {{ page.number }} of {{ page.paginator.num_pages }}
     </div>
   </div>
 
   {% if filter_bar %}
-    <div class="col-sm-2">
-      <div class="panel panel-primary">
-        <div class="panel-heading">Filter by...</div>
-        <div class="panel-body">
-        {{ filter_bar|safe }}
+    <div class="col-12 col-lg-3 col-xl-2">
+      <aside class="card shadow-sm h-100">
+        <div class="card-header fw-semibold">Filter by…</div>
+        <div class="card-body small">
+          {{ filter_bar|safe }}
         </div>
-      </div>
+      </aside>
     </div>
   {% endif %}
 </div>
