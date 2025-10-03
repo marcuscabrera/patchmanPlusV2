@@ -85,6 +85,49 @@ celery -A patchman worker -l info
 celery -A patchman beat -l info
 ```
 
+## Execução com Docker Compose
+
+Para levantar um ambiente de produção leve utilizando containers, o repositório fornece um `docker-compose.yml` pronto para uso. Siga as etapas abaixo logo após clonar o projeto:
+
+1. Copie o arquivo de variáveis de ambiente de exemplo para a raiz do projeto e ajuste os valores conforme necessário:
+
+   ```shell
+   cp .env.example .env
+   ```
+
+   Garanta que campos sensíveis como `DJANGO_SECRET_KEY` possuam um valor robusto e que as credenciais padrão do superusuário (`DJANGO_SUPERUSER_EMAIL`, `DJANGO_SUPERUSER_USERNAME`, `DJANGO_SUPERUSER_PASSWORD`) estejam definidas antes do primeiro `up`.
+
+2. Os volumes nomeados configurados em `docker-compose.yml` (`patchman-db`, `patchman-run`, `patchman-static` e `patchman-redis`) preservam os dados da aplicação entre reinicializações dos serviços, portanto não serão perdidos ao reiniciar os containers.
+
+3. Construa as imagens e suba os serviços em segundo plano:
+
+   ```shell
+   docker compose up --build -d
+   ```
+
+4. Acompanhe os logs principais do serviço web enquanto os containers inicializam:
+
+   ```shell
+   docker compose logs -f web
+   ```
+
+   Assim que o servidor estiver disponível, acesse a interface web em [http://localhost:8000/](http://localhost:8000/).
+
+5. Para encerrar e remover os containers e redes criados, execute:
+
+   ```shell
+   docker compose down
+   ```
+
+6. Necessita executar comandos administrativos adicionais? Utilize `docker compose exec` para acessar o container `web` e rodar comandos Django clássicos, como coletar arquivos estáticos ou criar usuários extras:
+
+   ```shell
+   docker compose exec web python manage.py collectstatic
+   docker compose exec web python manage.py createsuperuser
+   ```
+
+   Substitua o comando final por qualquer outro comando de gerenciamento que desejar (`shell`, `migrate`, etc.).
+
 ## Uso
 
 A interface web contém um painel com itens que precisam de atenção e várias páginas para manipular hosts, repositórios, pacotes, sistemas operacionais e relatórios.
