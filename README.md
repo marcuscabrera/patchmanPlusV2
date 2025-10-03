@@ -95,9 +95,13 @@ Para levantar um ambiente de produção leve utilizando containers, o repositór
    cp .env.example .env
    ```
 
-   Garanta que campos sensíveis como `DJANGO_SECRET_KEY` possuam um valor robusto e que as credenciais padrão do superusuário (`DJANGO_SUPERUSER_EMAIL`, `DJANGO_SUPERUSER_USERNAME`, `DJANGO_SUPERUSER_PASSWORD`) estejam definidas antes do primeiro `up`.
+   No novo arquivo `.env`, revise especialmente as seguintes variáveis antes da primeira execução:
 
-2. Os volumes nomeados configurados em `docker-compose.yml` (`patchman-db`, `patchman-run`, `patchman-static` e `patchman-redis`) preservam os dados da aplicação entre reinicializações dos serviços, portanto não serão perdidos ao reiniciar os containers.
+   - `DJANGO_SECRET_KEY`: defina um valor forte e único.
+   - `DJANGO_SUPERUSER_EMAIL`, `DJANGO_SUPERUSER_USERNAME`, `DJANGO_SUPERUSER_PASSWORD`: configure as credenciais iniciais do superusuário da interface administrativa.
+   - Outras chaves disponíveis no exemplo (por exemplo configurações de banco, cache e e-mail) podem ser personalizadas conforme a sua infraestrutura.
+
+2. Os volumes nomeados configurados em `docker-compose.yml` (`patchman-db`, `patchman-run`, `patchman-static` e `patchman-redis`) preservam os dados da aplicação entre reinicializações dos serviços, portanto o banco, arquivos gerados e cache persistem quando os containers são recriados.
 
 3. Construa as imagens e suba os serviços em segundo plano:
 
