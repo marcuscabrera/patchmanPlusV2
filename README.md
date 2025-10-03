@@ -74,7 +74,9 @@ O repositório é fornecido com uma configuração de exemplo em `etc/patchman`.
    python manage.py runserver
    ```
 
-Com o servidor em execução, você pode entrar em `/patchman/` usando as credenciais do superusuário criado acima.
+Com o servidor em execução, visite `http://127.0.0.1:8000/` (ou diretamente `/login/`) usando as credenciais do superusuário criado acima.
+
+> Observação: o comando `runserver` ajusta temporariamente `LOGIN_URL` e `LOGIN_REDIRECT_URL` para apontar para `/login/`, garantindo que o fluxo de autenticação funcione no ambiente de desenvolvimento.
 
 ### Trabalhadores em segundo plano opcionais
 
