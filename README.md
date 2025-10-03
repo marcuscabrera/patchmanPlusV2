@@ -1,62 +1,43 @@
 # Patchman
 
+## Resumo
 
-## Summary
-
-Patchman is a Django-based patch status monitoring tool for linux systems.
-Patchman provides a web interface for monitoring the package updates available
-for linux hosts.
+Patchman é uma ferramenta de monitoramento do status de patches baseada em Django para sistemas Linux. Patchman oferece uma interface web para monitorar as atualizações de pacotes disponíveis para hosts Linux.
 
 [![](https://raw.githubusercontent.com/furlongm/patchman/gh-pages/screenshots/dashboard.png)](https://github.com/furlongm/patchman/tree/gh-pages/screenshots)
 
+## Como o Patchman funciona?
 
-## How does Patchman work?
+Os clientes do Patchman enviam uma lista de pacotes instalados e repositórios habilitados para o servidor Patchman. O servidor Patchman atualiza sua lista de pacotes para cada repositório e determina quais hosts precisam de atualizações e se essas atualizações são normais ou de segurança. A interface web também fornece informações sobre possíveis problemas, como pacotes instalados que não pertencem a nenhum repositório.
 
-Patchman clients send a list of installed packages and enabled repositories to
-the Patchman server. The Patchman server updates its package list for each
-repository and determines which hosts require updates, and whether those updates
-are normal or security updates. The web interface also gives information on
-potential issues, such as installed packages that are not from any repository.
+Hosts, pacotes, repositórios e sistemas operacionais podem ser filtrados. Por exemplo, é possível descobrir quais hosts possuem uma determinada versão de um pacote instalada e de qual repositório ela vem.
 
-Hosts, packages, repositories and operating systems can all be filtered. For
-example, it is possible to find out which hosts have a certain version of a
-package installed, and which repository it comes from.
+Patchman não instala pacotes de atualização nos hosts; ele determina e exibe quais atualizações estão disponíveis para cada host.
 
-Patchman does not install update packages on hosts, it determines and displays
-what updates are available for each host.
+Os plug-ins `yum`, `apt` e `zypper` podem enviar relatórios ao servidor Patchman sempre que pacotes são instalados ou removidos em um host.
 
-`yum`, `apt` and `zypper` plugins can send reports to the Patchman server every
-time packages are installed or removed on a host.
+## Instalação
 
+Consulte o [guia de instalação](https://github.com/furlongm/patchman/blob/master/INSTALL.md) para conhecer as opções de instalação.
 
-## Installation
+## Início rápido para desenvolvimento local
 
-See [the installation guide](https://github.com/furlongm/patchman/blob/master/INSTALL.md)
-for installation options.
+O repositório é fornecido com uma configuração de exemplo em `etc/patchman`. As etapas a seguir criam um ambiente local que armazena seus dados dentro do diretório do projeto e serve o Django admin em `http://127.0.0.1:8000/`.
 
-
-## Quickstart for local development
-
-The repository ships with sample configuration under `etc/patchman`. The
-following steps spin up a local environment that stores its data inside the
-project directory and serves the Django admin at `http://127.0.0.1:8000/`.
-
-1. Create and activate a virtual environment:
+1. Crie e ative um ambiente virtual:
 
    ```shell
    python3 -m venv .venv
    source .venv/bin/activate
    ```
 
-2. Install the Python dependencies required by the server and the client:
+2. Instale as dependências Python necessárias para o servidor e o cliente:
 
    ```shell
    pip install -r requirements.txt
    ```
 
-3. Adjust `etc/patchman/local_settings.py` for development. At a minimum set a
-   non-empty `SECRET_KEY` and point the SQLite database to a writable location
-   inside the repository, for example:
+3. Ajuste `etc/patchman/local_settings.py` para desenvolvimento. Pelo menos defina um `SECRET_KEY` não vazio e aponte o banco de dados SQLite para um local gravável dentro do repositório, por exemplo:
 
    ```python
    from pathlib import Path
@@ -74,60 +55,51 @@ project directory and serves the Django admin at `http://127.0.0.1:8000/`.
    }
    ```
 
-   Then create the database directory and any other runtime folders:
+   Em seguida, crie o diretório do banco de dados e quaisquer outras pastas de tempo de execução:
 
    ```shell
    mkdir -p run
    ```
 
-4. Apply the database migrations and create a superuser to access the web UI:
+4. Aplique as migrações do banco de dados e crie um superusuário para acessar a interface web:
 
    ```shell
    python manage.py migrate
    python manage.py createsuperuser
    ```
 
-5. Start the development server:
+5. Inicie o servidor de desenvolvimento:
 
    ```shell
    python manage.py runserver
    ```
 
-With the server running you can log in at `/patchman/` using the superuser
-credentials created above.
+Com o servidor em execução, você pode entrar em `/patchman/` usando as credenciais do superusuário criado acima.
 
-### Optional background workers
+### Trabalhadores em segundo plano opcionais
 
-Patchman makes use of Celery for asynchronous tasks such as processing
-incoming reports or refreshing repositories. To exercise these features during
-development run the worker and beat scheduler in separate terminals:
+Patchman usa Celery para tarefas assíncronas, como processar relatórios recebidos ou atualizar repositórios. Para testar esses recursos durante o desenvolvimento, execute o worker e o agendador beat em terminais separados:
 
 ```shell
 celery -A patchman worker -l info
 celery -A patchman beat -l info
 ```
 
-## Usage
+## Uso
 
-The web interface contains a dashboard with items that need attention, and
-various pages to manipulate hosts, repositories, packages, operating systems and
-reports.
+A interface web contém um painel com itens que precisam de atenção e várias páginas para manipular hosts, repositórios, pacotes, sistemas operacionais e relatórios.
 
-The reports list view supports filtering by fully qualified host name via the
-`host_id` query parameter (for example, `/reports/?host_id=host.example.org`).
+A visão de lista de relatórios permite filtrar pelo nome de host totalmente qualificado por meio do parâmetro de consulta `host_id` (por exemplo, `/reports/?host_id=host.example.org`).
 
-To populate the database, simply run the client on some hosts:
+Para popular o banco de dados, basta executar o cliente em alguns hosts:
 
 ```shell
 $ patchman-client -s http://patchman.example.org
 ```
 
-This should provide some initial data to work with.
+Isso deve fornecer alguns dados iniciais com os quais trabalhar.
 
-On the server, the `patchman` command line utility can be used to run certain
-maintenance tasks, e.g. processing the reports sent from hosts, downloading
-repository update information from the web. Run `patchman -h` for a rundown of
-the usage:
+No servidor, o utilitário de linha de comando `patchman` pode ser usado para executar determinadas tarefas de manutenção, como processar os relatórios enviados pelos hosts ou baixar informações de atualização de repositórios da web. Execute `patchman -h` para ver um resumo de uso:
 
 ```shell
 $ sbin/patchman -h
@@ -161,10 +133,9 @@ optional arguments:
                         meier.de/
 ```
 
-## Dependencies
+## Dependências
 
-### Server-side dependencies
-
+### Dependências do lado do servidor
 
 ```
 python3-django
@@ -184,70 +155,40 @@ python3-humanize
 python3-yaml
 ```
 
-The server can optionally make use of celery to asynchronously process the
-reports sent by hosts.
+O servidor pode opcionalmente usar Celery para processar de forma assíncrona os relatórios enviados pelos hosts.
 
+### Dependências do lado do cliente
 
-### Client-side dependencies
+As dependências do lado do cliente são mantidas no mínimo. `rpm` e `dpkg` são necessários para relatar pacotes; `yum`, `dnf`, `zypper` e/ou `apt` são necessários para relatar repositórios. Esses pacotes normalmente já estão instalados por padrão na maioria dos sistemas.
 
-The client-side dependencies are kept to a minimum. `rpm` and `dpkg` are
-required to report packages, `yum`, `dnf`, `zypper` and/or `apt` are required
-to report repositories. These packages are normally installed by default on
-most systems.
+Sistemas operacionais baseados em Debian nem sempre alteram a versão do kernel quando uma atualização de kernel é instalada, portanto o pacote `update-notifier-common` pode ser instalado opcionalmente para habilitar essa funcionalidade. Sistemas baseados em rpm conseguem indicar se um reboot é necessário para instalar um novo kernel observando `uname -r` e comparando com a versão de kernel mais alta instalada, de modo que não são necessários pacotes extras nesses sistemas.
 
-deb-based OS's do not always change the kernel version when a kernel update is
-installed, so the `update-notifier-common` package can optionally be installed
-to enable this functionality. rpm-based OS's can tell if a reboot is required
-to install a new kernel by looking at `uname -r` and comparing it to the
-highest installed kernel version, so no extra packages are required on those
-OS's.
+## Conceitos
 
+As configurações padrão serão suficientes para a maioria das pessoas, mas, dependendo da sua configuração, pode ser necessário algum trabalho inicial para organizar logicamente os dados enviados nos relatórios dos hosts. As explicações a seguir podem ajudar nesse caso.
 
-## Concepts
-
-The default settings will be fine for most people but depending on your setup,
-there may be some initial work required to logically organise the data sent in
-the host reports. The following explanations may help in this case.
-
-There are a number of basic objects - Hosts, Repositories, Packages, Operating
-Systems and Reports. There are also Operating System Groups (which are optional)
-and Mirrors.
+Existem vários objetos básicos: Hosts, Repositórios, Pacotes, Sistemas Operacionais e Relatórios. Também existem Grupos de Sistemas Operacionais (opcionais) e Mirrors.
 
 ### Host
-A Host is a single host, e.g. test01.example.org.
+Um Host é um host individual, por exemplo, test01.example.org.
 
-### Operating System
-A Host runs an Operating System, e.g. CentOS 7.7, Debian 10.1, Ubuntu 18.04
+### Sistema Operacional
+Um Host executa um Sistema Operacional, por exemplo, CentOS 7.7, Debian 10.1, Ubuntu 18.04.
 
-### Package
-A Package is a package that is either installed on a Host, or is available to
-download from a Repository mirror, e.g. `strace-4.8-11.el7.x86_64`,
-`grub2-tools-2.02-0.34.el7.centos.x86_64`, etc.
+### Pacote
+Um Pacote é um pacote que está instalado em um Host ou disponível para download em um mirror de Repositório, por exemplo, `strace-4.8-11.el7.x86_64`, `grub2-tools-2.02-0.34.el7.centos.x86_64`, etc.
 
 ### Mirror
-A Mirror is a collection of Packages available on the web, e.g. a `yum`, `yast`
-or `apt` repo.
+Um Mirror é uma coleção de Pacotes disponível na web, por exemplo, um repositório `yum`, `yast` ou `apt`.
 
-### Repository
-A Repository is a collection of Mirrors. Typically all the Mirrors will contain
-the same Packages. For Red Hat-based Hosts, Repositories automatically link
-their Mirrors together. For Debian-based hosts, you may need to link all
-Mirrors that form a Repository using the web interface. This may reduce the
-time required to find updates. Repositories can be marked as being security or
-non-security. This makes most sense with Debian and Ubuntu repositories where
-security updates are delivered via security repositories. For CentOS security
-updates, see the Erratum section below.
+### Repositório
+Um Repositório é uma coleção de Mirrors. Normalmente, todos os Mirrors contêm os mesmos Pacotes. Para Hosts baseados em Red Hat, Repositórios vinculam seus Mirrors automaticamente. Para hosts baseados em Debian, talvez seja necessário vincular pelo menos via interface web todos os Mirrors que formam um Repositório. Isso pode reduzir o tempo necessário para encontrar atualizações. Repositórios podem ser marcados como de segurança ou não. Isso faz mais sentido com repositórios Debian e Ubuntu, onde atualizações de segurança são entregues por repositórios específicos. Para atualizações de segurança do CentOS, consulte a seção Errata abaixo.
 
-### Report
-A Host creates a Report using `patchman-client`. This Report is sent to the
-Patchman server. The Report contains the Host's Operating System, and lists
-of the installed Packages and enabled Repositories on the Host. The Patchman
-server processes and records the list of Packages and Repositories contained in
-the Report.
+### Relatório
+Um Host cria um Relatório usando `patchman-client`. Esse Relatório é enviado ao servidor Patchman. O Relatório contém o Sistema Operacional do Host e listas de Pacotes instalados e Repositórios habilitados no Host. O servidor Patchman processa e registra as listas de Pacotes e Repositórios contidas no Relatório.
 
-### Operating System Group (optional)
-An OSGroup is a collection of OS's. For example, an OSGroup named "Ubuntu 18.04"
-would be comprised of the following OS's:
+### Grupo de Sistema Operacional (opcional)
+Um OSGroup é uma coleção de sistemas operacionais. Por exemplo, um OSGroup chamado “Ubuntu 18.04” seria composto pelos seguintes sistemas:
 
 ```
 Ubuntu 18.04.1
@@ -255,25 +196,16 @@ Ubuntu 18.04.2
 Ubuntu 18.04.5
 ```
 
-Likewise, an OSGroup named "CentOS 7" would be made up of the following OS's:
+Da mesma forma, um OSGroup chamado “CentOS 7” seria formado pelos sistemas:
 
 ```
 CentOS 7.5
 CentOS 7.7.1511
 ```
 
-Repositories can be associated with an OSGroup, or with the Host itself. If the
-`use_host_repos variable` is set to True for a Host, then updates are found by
-looking only at the Repositories that belong to that Host. This is the default
-behaviour and does not require OSGroups to be configured.
+Repositórios podem ser associados a um OSGroup ou ao próprio Host. Se a variável `use_host_repos` estiver definida como True para um Host, as atualizações são encontradas olhando apenas os Repositórios que pertencem a esse Host. Esse é o comportamento padrão e não exige a configuração de OSGroups.
 
-If `use_host_repos` is set to False, the update-finding process looks at the
-OSGroup that the Host's Operating System is in, and uses the OSGroup's
-Repositories to determine the applicable updates. This is useful in environments
-where many hosts are homogeneous (e.g. cloud/cluster environments).
+Se `use_host_repos` estiver definido como False, o processo de descoberta de atualizações observa o OSGroup ao qual pertence o Sistema Operacional do Host e usa os Repositórios desse OSGroup para determinar as atualizações aplicáveis. Isso é útil em ambientes onde muitos hosts são homogêneos (por exemplo, ambientes de nuvem/cluster).
 
-### Erratum
-Errata for CentOS can be downloaded from https://cefs.steve-meier.de/ .
-These errata are parsed and stored in the database. If a PackageUpdate
-contains a package that is a security update in the errata, then that update is
-marked as being a security update.
+### Errata
+Errata para CentOS podem ser baixadas de https://cefs.steve-meier.de/. Essas errata são analisadas e armazenadas no banco de dados. Se um PackageUpdate contiver um pacote classificado como atualização de segurança nas errata, essa atualização é marcada como atualização de segurança.
