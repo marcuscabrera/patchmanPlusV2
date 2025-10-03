@@ -1,16 +1,12 @@
-{% load bootstrap3 %}
-<div>
-  <form method="get">
-    <div class="input-group">
-      <input type="text" class="form-control input-sm" placeholder="Search" name="search" id="search" value="{{ terms }}">
+<div class="mb-3">
+  <form method="get" class="search-form">
+    <div class="input-group input-group-sm">
+      <input type="text" class="form-control" placeholder="Search" name="search" id="search" value="{{ terms }}">
       {% for key, value in querydict.items %}
         <input type="hidden" id="{{ key }}" name="{{ key }}" value="{{ value }}">
       {% endfor %}
-      <div class="input-group-btn">
-        <button class="btn btn-primary btn-sm" type="submit">{% bootstrap_icon "search" %}</button>
-      </div>
+      <button class="btn btn-primary" type="submit">Search</button>
     </div>
   </form>
 </div>
-<br />
 <script type="text/javascript">document.getElementById("search").focus();</script>
